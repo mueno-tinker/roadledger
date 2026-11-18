@@ -1,0 +1,2606 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#0d0f14" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="icon.svg" type="image/svg+xml" />
+  <title>ROADLEDGER — Rapido & Porter Earnings Tracker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --bg-app: #0d0f14;
+      --bg-surface: #151922;
+      --bg-card: #1a1f2b;
+      --bg-card-alt: #222838;
+      --bg-input: #11151d;
+      --border-color: #272e3f;
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --green: #10b981;
+      --green-soft: rgba(16, 185, 129, 0.14);
+      --red: #ef4444;
+      --red-soft: rgba(239, 68, 68, 0.14);
+      --yellow: #facc15;
+      --yellow-soft: rgba(250, 204, 21, 0.14);
+      --blue: #3b82f6;
+      --blue-soft: rgba(59, 130, 246, 0.14);
+      --accent: #10b981;
+      --accent-hover: #059669;
+      --nav-bg: rgba(21, 25, 34, 0.94);
+      --shadow-card: 0 6px 20px rgba(0, 0, 0, 0.28);
+      --radius-lg: 18px;
+      --radius-md: 12px;
+      --radius-sm: 8px;
+    }
+
+    html[data-theme="light"] {
+      --bg-app: #f3f5f9;
+      --bg-surface: #ffffff;
+      --bg-card: #ffffff;
+      --bg-card-alt: #f8fafc;
+      --bg-input: #f1f5f9;
+      --border-color: #e2e8f0;
+      --text-primary: #0f172a;
+      --text-secondary: #475569;
+      --text-muted: #64748b;
+      --green: #059669;
+      --green-soft: rgba(5, 150, 105, 0.12);
+      --red: #dc2626;
+      --red-soft: rgba(220, 38, 38, 0.1);
+      --yellow: #ca8a04;
+      --yellow-soft: rgba(234, 179, 8, 0.16);
+      --blue: #2563eb;
+      --blue-soft: rgba(37, 99, 235, 0.12);
+      --accent: #059669;
+      --accent-hover: #047857;
+      --nav-bg: rgba(255, 255, 255, 0.96);
+      --shadow-card: 0 4px 14px rgba(15, 23, 42, 0.06);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg-app);
+      color: var(--text-primary);
+      line-height: 1.45;
+      min-height: 100vh;
+      transition: background-color 0.2s ease, color 0.2s ease;
+      overflow-x: hidden;
+    }
+
+    .app-shell {
+      max-width: 480px;
+      margin: 0 auto;
+      min-height: 100vh;
+      position: relative;
+      padding: 16px 16px 96px;
+    }
+
+    .page {
+      display: none;
+      animation: fadeSlideIn 0.2s ease-out;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    @keyframes fadeSlideIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Header */
+    .app-header {
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+
+    .brand-title {
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      color: var(--text-primary);
+    }
+
+    .brand-sub {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-top: 2px;
+      font-weight: 500;
+    }
+
+    .page-title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      gap: 10px;
+    }
+
+    .page-title {
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    /* Cards */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      margin-bottom: 12px;
+      box-shadow: var(--shadow-card);
+      transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.12s ease;
+    }
+
+    .card-clickable {
+      cursor: pointer;
+    }
+
+    .card-clickable:active {
+      transform: scale(0.985);
+    }
+
+    .hero-card {
+      background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-card-alt) 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+    }
+
+    .hero-amount {
+      font-size: 36px;
+      font-weight: 800;
+      margin: 6px 0 10px;
+      letter-spacing: -0.02em;
+    }
+
+    .hero-split {
+      display: flex;
+      gap: 16px;
+      font-size: 13px;
+      color: var(--text-secondary);
+      border-top: 1px solid var(--border-color);
+      padding-top: 10px;
+    }
+
+    .hero-split span strong {
+      color: var(--text-primary);
+      font-weight: 700;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .grid-2 .card {
+      margin-bottom: 0;
+    }
+
+    .platform-card.rapido {
+      border-top: 3px solid var(--yellow);
+    }
+
+    .platform-card.porter {
+      border-top: 3px solid var(--blue);
+    }
+
+    .platform-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 999px;
+      margin-bottom: 8px;
+    }
+
+    .badge-rapido {
+      background: var(--yellow-soft);
+      color: var(--yellow);
+    }
+
+    .badge-porter {
+      background: var(--blue-soft);
+      color: var(--blue);
+    }
+
+    .badge-general {
+      background: rgba(148, 163, 184, 0.16);
+      color: var(--text-secondary);
+    }
+
+    .stat-value {
+      font-size: 22px;
+      font-weight: 700;
+    }
+
+    .stat-meta {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+
+    .text-green { color: var(--green); }
+    .text-red { color: var(--red); }
+    .text-yellow { color: var(--yellow); }
+    .text-blue { color: var(--blue); }
+    .text-muted { color: var(--text-secondary); }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0;
+    }
+
+    .summary-divider {
+      height: 1px;
+      background: var(--border-color);
+      margin: 8px 0;
+    }
+
+    .driving-metrics {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 10px;
+      text-align: center;
+    }
+
+    .driving-metric-box {
+      background: var(--bg-input);
+      border-radius: var(--radius-md);
+      padding: 10px 6px;
+      border: 1px solid var(--border-color);
+    }
+
+    .driving-metric-val {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .driving-metric-lbl {
+      font-size: 11px;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      border: none;
+      border-radius: var(--radius-md);
+      padding: 13px 16px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.1s ease, opacity 0.15s ease, background-color 0.15s ease;
+      width: 100%;
+    }
+
+    .btn:active {
+      transform: scale(0.98);
+    }
+
+    .btn:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #ffffff;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: var(--accent-hover);
+    }
+
+    .btn-secondary {
+      background: var(--bg-card-alt);
+      color: var(--text-primary);
+      border: 1px solid var(--border-color);
+    }
+
+    .btn-danger {
+      background: var(--red-soft);
+      color: var(--red);
+      border: 1px solid rgba(239, 68, 68, 0.35);
+    }
+
+    .btn-sm {
+      padding: 8px 12px;
+      font-size: 12px;
+      width: auto;
+      border-radius: var(--radius-sm);
+    }
+
+    .quick-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 4px;
+    }
+
+    /* Segmented Tabs & Pills */
+    .segmented {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 4px;
+      margin-bottom: 14px;
+      gap: 4px;
+    }
+
+    .seg-btn {
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      padding: 10px 8px;
+      border-radius: var(--radius-sm);
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .seg-btn.active {
+      background: var(--bg-card);
+      color: var(--text-primary);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    }
+
+    .seg-btn.active-income {
+      background: var(--green-soft);
+      color: var(--green);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+    }
+
+    .seg-btn.active-expense {
+      background: var(--red-soft);
+      color: var(--red);
+      border: 1px solid rgba(239, 68, 68, 0.35);
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .pill-scroll {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+      margin-bottom: 12px;
+      scrollbar-width: none;
+    }
+    .pill-scroll::-webkit-scrollbar { display: none; }
+
+    .pill {
+      border: 1px solid var(--border-color);
+      background: var(--bg-input);
+      color: var(--text-secondary);
+      padding: 8px 13px;
+      border-radius: 999px;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s ease;
+    }
+
+    .pill.active {
+      background: var(--green-soft);
+      color: var(--green);
+      border-color: var(--green);
+    }
+
+    .pill.active-yellow {
+      background: var(--yellow-soft);
+      color: var(--yellow);
+      border-color: var(--yellow);
+    }
+
+    .pill.active-blue {
+      background: var(--blue-soft);
+      color: var(--blue);
+      border-color: var(--blue);
+    }
+
+    /* Forms */
+    .form-group {
+      margin-bottom: 14px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+    }
+
+    .form-control {
+      width: 100%;
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      border-radius: var(--radius-md);
+      padding: 12px 14px;
+      font-family: inherit;
+      font-size: 15px;
+      outline: none;
+      transition: border-color 0.15s ease;
+    }
+
+    .form-control:focus {
+      border-color: var(--accent);
+    }
+
+    .amount-input {
+      font-size: 28px;
+      font-weight: 800;
+      padding: 14px 16px;
+    }
+
+    .helper-text {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 5px;
+    }
+
+    .estimate-box {
+      background: var(--bg-input);
+      border: 1px dashed var(--accent);
+      border-radius: var(--radius-md);
+      padding: 14px;
+      margin-bottom: 14px;
+      text-align: center;
+    }
+
+    .estimate-val {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--yellow);
+      margin: 4px 0;
+    }
+
+    /* Charts */
+    .chart-box {
+      position: relative;
+      height: 210px;
+      width: 100%;
+      margin-top: 8px;
+    }
+
+    /* Lists */
+    .tx-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 13px 14px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      margin-bottom: 9px;
+      cursor: pointer;
+      transition: transform 0.1s ease;
+    }
+
+    .tx-item:active {
+      transform: scale(0.99);
+    }
+
+    .tx-left {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      max-width: 66%;
+    }
+
+    .tx-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .tx-sub {
+      font-size: 11px;
+      color: var(--text-secondary);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .tx-note {
+      font-size: 11px;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .tx-amount {
+      font-size: 16px;
+      font-weight: 700;
+      text-align: right;
+    }
+
+    .tag-chip {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 999px;
+      text-transform: uppercase;
+    }
+
+    /* Filter grid */
+    .filter-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .filter-select {
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      border-radius: var(--radius-sm);
+      padding: 8px 10px;
+      font-family: inherit;
+      font-size: 12px;
+      width: 100%;
+    }
+
+    /* Bottom Navigation */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 480px;
+      background: var(--nav-bg);
+      backdrop-filter: blur(12px);
+      border-top: 1px solid var(--border-color);
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      align-items: center;
+      padding: 6px 6px calc(6px + env(safe-area-inset-bottom));
+      z-index: 50;
+    }
+
+    .nav-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      font-family: inherit;
+      font-size: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 6px 2px;
+    }
+
+    .nav-btn.active {
+      color: var(--accent);
+    }
+
+    .nav-btn svg {
+      width: 20px;
+      height: 20px;
+      stroke-width: 2;
+    }
+
+    .nav-add-wrap {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .nav-add-btn {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #ffffff;
+      border: 3px solid var(--bg-app);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);
+      cursor: pointer;
+      margin-top: -18px;
+      transition: transform 0.12s ease;
+    }
+
+    .nav-add-btn:active {
+      transform: scale(0.92);
+    }
+
+    /* Modal & Toast */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.65);
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      z-index: 100;
+      padding: 12px;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal-sheet {
+      width: 100%;
+      max-width: 460px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 18px;
+      max-height: 88vh;
+      overflow-y: auto;
+      animation: fadeSlideIn 0.18s ease-out;
+    }
+
+    .toast {
+      position: fixed;
+      top: 16px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-20px);
+      background: var(--accent);
+      color: #fff;
+      padding: 10px 18px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.25s ease;
+      z-index: 120;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .toast.error {
+      background: var(--red);
+    }
+
+    .insight-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border-color);
+      font-size: 13px;
+    }
+    .insight-row:last-child { border-bottom: none; }
+
+    .empty-state {
+      text-align: center;
+      padding: 28px 16px;
+      color: var(--text-secondary);
+      font-size: 13px;
+    }
+
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <div class="app-shell">
+    <!-- PAGE 1: HOME DASHBOARD -->
+    <section id="page-home" class="page active">
+      <header class="app-header">
+        <div>
+          <div class="brand-title">ROADLEDGER</div>
+          <div id="home-date-label" class="brand-sub">Wednesday, 18 November 2026</div>
+        </div>
+      </header>
+
+      <div class="card hero-card">
+        <div class="hero-label">Today's Earnings</div>
+        <div id="home-total-income" class="hero-amount">₹0</div>
+        <div class="hero-split">
+          <span>Rapido: <strong id="home-rapido-inline" class="text-yellow">₹0</strong></span>
+          <span>Porter: <strong id="home-porter-inline" class="text-blue">₹0</strong></span>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div id="card-rapido-tap" class="card platform-card rapido card-clickable">
+          <div class="platform-badge badge-rapido">Rapido</div>
+          <div id="home-rapido-total" class="stat-value">₹0</div>
+          <div id="home-rapido-count" class="stat-meta">0 income entries</div>
+        </div>
+        <div id="card-porter-tap" class="card platform-card porter card-clickable">
+          <div class="platform-badge badge-porter">Porter</div>
+          <div id="home-porter-total" class="stat-value">₹0</div>
+          <div id="home-porter-count" class="stat-meta">0 income entries</div>
+        </div>
+      </div>
+
+      <div id="card-expenses-tap" class="card card-clickable">
+        <div class="hero-label" style="margin-bottom: 8px;">Financial Summary</div>
+        <div class="summary-row">
+          <span class="text-muted">Total Expenses</span>
+          <strong id="home-total-expenses" class="text-red" style="font-size: 18px;">₹0</strong>
+        </div>
+        <div class="summary-divider"></div>
+        <div class="summary-row">
+          <span style="font-weight: 600;">Net Profit</span>
+          <strong id="home-net-profit" class="text-green" style="font-size: 20px;">₹0</strong>
+        </div>
+      </div>
+
+      <div id="card-driving-tap" class="card card-clickable">
+        <div class="hero-label">Today's Driving</div>
+        <div class="driving-metrics">
+          <div class="driving-metric-box">
+            <div id="home-distance" class="driving-metric-val">0 km</div>
+            <div class="driving-metric-lbl">Distance</div>
+          </div>
+          <div class="driving-metric-box">
+            <div id="home-fuel" class="driving-metric-val">0.00 L</div>
+            <div class="driving-metric-lbl">Est. Fuel</div>
+          </div>
+          <div class="driving-metric-box">
+            <div id="home-epk" class="driving-metric-val">₹0.00</div>
+            <div class="driving-metric-lbl">Earnings / km</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="quick-actions">
+        <button id="home-btn-add" class="btn btn-primary">+ Add Entry</button>
+        <button id="home-btn-closing" class="btn btn-secondary">Daily Closing Report</button>
+      </div>
+    </section>
+
+    <!-- PAGE 2: ADD ENTRY -->
+    <section id="page-add" class="page">
+      <div class="page-title-row">
+        <h1 class="page-title" id="add-page-title">Add Entry</h1>
+      </div>
+
+      <div class="segmented" id="add-mode-tabs">
+        <button class="seg-btn active" data-add-tab="transaction">Financial Transaction</button>
+        <button class="seg-btn" data-add-tab="driving">Daily Driving Details</button>
+      </div>
+
+      <!-- 2A: Financial Transaction Form -->
+      <form id="tx-form" class="card">
+        <input type="hidden" id="tx-edit-id" value="" />
+        <div class="segmented">
+          <button type="button" id="btn-type-income" class="seg-btn active-income">Income</button>
+          <button type="button" id="btn-type-expense" class="seg-btn">Expense</button>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="tx-amount">Amount (₹)</label>
+          <input id="tx-amount" type="number" step="0.01" min="0.01" placeholder="0" class="form-control amount-input" required />
+        </div>
+
+        <!-- Income Platform -->
+        <div id="tx-platform-group" class="form-group">
+          <label class="form-label">Platform</label>
+          <div class="pill-row">
+            <button type="button" class="pill active-yellow" data-tx-platform="Rapido">Rapido</button>
+            <button type="button" class="pill" data-tx-platform="Porter">Porter</button>
+          </div>
+        </div>
+
+        <!-- Expense Category -->
+        <div id="tx-category-group" class="form-group hidden">
+          <label class="form-label">Expense Category</label>
+          <div class="pill-row" id="expense-category-pills">
+            <button type="button" class="pill active" data-tx-category="Fuel">Fuel</button>
+            <button type="button" class="pill" data-tx-category="Food">Food</button>
+            <button type="button" class="pill" data-tx-category="Maintenance">Maintenance</button>
+            <button type="button" class="pill" data-tx-category="Rapido Charges">Rapido Charges</button>
+            <button type="button" class="pill" data-tx-category="Porter Charges">Porter Charges</button>
+            <button type="button" class="pill" data-tx-category="Other">Other</button>
+          </div>
+        </div>
+
+        <!-- Expense Allocation -->
+        <div id="tx-allocation-group" class="form-group hidden">
+          <label class="form-label">Expense Allocation</label>
+          <div class="pill-row" id="expense-allocation-pills">
+            <button type="button" class="pill active" data-tx-alloc="General / Shared">General / Shared</button>
+            <button type="button" class="pill" data-tx-alloc="Rapido">Rapido</button>
+            <button type="button" class="pill" data-tx-alloc="Porter">Porter</button>
+          </div>
+          <div id="alloc-helper" class="helper-text">Allocate platform-specific costs to calculate true platform profit.</div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Payment Method</label>
+          <div class="pill-row">
+            <button type="button" class="pill active" data-tx-payment="UPI">UPI</button>
+            <button type="button" class="pill" data-tx-payment="Cash">Cash</button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="tx-date">Date</label>
+          <input id="tx-date" type="date" class="form-control" required />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="tx-notes">Notes (optional)</label>
+          <input id="tx-notes" type="text" maxlength="140" placeholder="e.g., Morning peak rides or HP fuel refill" class="form-control" />
+        </div>
+
+        <button id="tx-submit-btn" type="submit" class="btn btn-primary">Save Transaction</button>
+        <button id="tx-cancel-edit-btn" type="button" class="btn btn-secondary hidden" style="margin-top: 8px;">Cancel Edit</button>
+      </form>
+
+      <!-- 2B: Daily Driving Details Form -->
+      <form id="driving-form" class="card hidden">
+        <input type="hidden" id="drv-edit-id" value="" />
+        <div class="form-group">
+          <label class="form-label" for="drv-date">Date</label>
+          <input id="drv-date" type="date" class="form-control" required />
+          <div id="drv-existing-hint" class="helper-text">One record per date. Saving an existing date updates it.</div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="drv-distance">Total Distance Travelled (km)</label>
+          <input id="drv-distance" type="number" step="0.1" min="0.1" placeholder="e.g. 85.5" class="form-control amount-input" required />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="drv-mileage">Average Vehicle Mileage (km/L)</label>
+          <input id="drv-mileage" type="number" step="0.1" min="1" class="form-control" required />
+          <div class="helper-text">Pre-filled from Settings default; editable for individual days.</div>
+        </div>
+
+        <div class="estimate-box">
+          <div class="hero-label">Estimated Fuel Consumption</div>
+          <div id="drv-fuel-preview" class="estimate-val">0.00 L</div>
+          <div id="drv-fuel-cost-preview" class="helper-text">Est. Fuel Cost: ₹0 (Estimate only — not recorded as an expense)</div>
+        </div>
+
+        <button id="drv-submit-btn" type="submit" class="btn btn-primary">Save Driving Record</button>
+      </form>
+    </section>
+
+    <!-- PAGE 3: STATISTICS & ANALYTICS -->
+    <section id="page-stats" class="page">
+      <div class="page-title-row">
+        <h1 class="page-title">Statistics & Analytics</h1>
+      </div>
+
+      <div class="pill-scroll" id="stats-range-pills">
+        <button class="pill" data-range="daily">Daily</button>
+        <button class="pill active" data-range="weekly">Weekly</button>
+        <button class="pill" data-range="monthly">Monthly</button>
+        <button class="pill" data-range="all">All Time</button>
+        <button class="pill" data-range="custom">Custom</button>
+      </div>
+
+      <div id="stats-custom-dates" class="card hidden">
+        <div class="filter-grid">
+          <div>
+            <label class="form-label" for="stats-start">From</label>
+            <input id="stats-start" type="date" class="filter-select" />
+          </div>
+          <div>
+            <label class="form-label" for="stats-end">To</label>
+            <input id="stats-end" type="date" class="filter-select" />
+          </div>
+        </div>
+      </div>
+
+      <!-- 3A: Overall Financial Analytics -->
+      <div class="card">
+        <div class="hero-label">Overall Financial Analytics</div>
+        <div class="driving-metrics" style="margin-bottom: 12px;">
+          <div class="driving-metric-box">
+            <div id="st-income" class="driving-metric-val text-green">₹0</div>
+            <div class="driving-metric-lbl">Total Income</div>
+          </div>
+          <div class="driving-metric-box">
+            <div id="st-expenses" class="driving-metric-val text-red">₹0</div>
+            <div class="driving-metric-lbl">Total Expenses</div>
+          </div>
+          <div class="driving-metric-box">
+            <div id="st-profit" class="driving-metric-val">₹0</div>
+            <div class="driving-metric-lbl">Net Profit</div>
+          </div>
+        </div>
+        <div class="chart-box">
+          <canvas id="chart-earnings-trend"></canvas>
+        </div>
+      </div>
+
+      <!-- 3B: Platform Comparison -->
+      <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+          <span class="hero-label">Platform Comparison</span>
+          <span id="st-top-platform" class="tag-chip badge-rapido">—</span>
+        </div>
+        <div class="grid-2">
+          <div class="driving-metric-box" style="text-align: left; padding: 12px;">
+            <div class="platform-badge badge-rapido">Rapido</div>
+            <div class="insight-row"><span>Earnings</span><strong id="st-rap-earn">₹0</strong></div>
+            <div class="insight-row"><span>Charges</span><strong id="st-rap-chg" class="text-red">₹0</strong></div>
+            <div class="insight-row"><span>Other Alloc.</span><strong id="st-rap-oth" class="text-red">₹0</strong></div>
+            <div class="insight-row"><span>Net*</span><strong id="st-rap-net" class="text-green">₹0</strong></div>
+            <div class="insight-row"><span>Entries</span><strong id="st-rap-cnt">0</strong></div>
+          </div>
+          <div class="driving-metric-box" style="text-align: left; padding: 12px;">
+            <div class="platform-badge badge-porter">Porter</div>
+            <div class="insight-row"><span>Earnings</span><strong id="st-por-earn">₹0</strong></div>
+            <div class="insight-row"><span>Charges</span><strong id="st-por-chg" class="text-red">₹0</strong></div>
+            <div class="insight-row"><span>Other Alloc.</span><strong id="st-por-oth" class="text-red">₹0</strong></div>
+            <div class="insight-row"><span>Net*</span><strong id="st-por-net" class="text-green">₹0</strong></div>
+            <div class="insight-row"><span>Entries</span><strong id="st-por-cnt">0</strong></div>
+          </div>
+        </div>
+        <div id="st-general-exp-note" class="helper-text" style="margin-top: 8px;">
+          *Platform Net excludes General / Shared expenses (₹0).
+        </div>
+      </div>
+
+      <!-- 3C: Driving Analytics -->
+      <div class="card">
+        <div class="hero-label">Driving Analytics</div>
+        <div class="driving-metrics">
+          <div class="driving-metric-box">
+            <div id="st-dist" class="driving-metric-val">0 km</div>
+            <div class="driving-metric-lbl">Total Distance</div>
+          </div>
+          <div class="driving-metric-box">
+            <div id="st-avg-dist" class="driving-metric-val">0 km</div>
+            <div class="driving-metric-lbl">Avg / Day</div>
+          </div>
+          <div class="driving-metric-box">
+            <div id="st-fuel" class="driving-metric-val">0 L</div>
+            <div class="driving-metric-lbl">Est. Fuel</div>
+          </div>
+          <div class="driving-metric-box">
+            <div id="st-mileage" class="driving-metric-val">0 km/L</div>
+            <div class="driving-metric-lbl">Avg Mileage</div>
+          </div>
+          <div class="driving-metric-box">
+            <div id="st-epk" class="driving-metric-val">₹0</div>
+            <div class="driving-metric-lbl">Earn / km</div>
+          </div>
+          <div class="driving-metric-box">
+            <div id="st-ppk" class="driving-metric-val">₹0</div>
+            <div class="driving-metric-lbl">Net Profit / km</div>
+          </div>
+        </div>
+        <div class="chart-box" style="margin-top: 14px;">
+          <canvas id="chart-distance"></canvas>
+        </div>
+      </div>
+
+      <!-- 3D: Expense Breakdown -->
+      <div class="card">
+        <div class="hero-label">Expense Breakdown</div>
+        <div class="chart-box">
+          <canvas id="chart-expenses"></canvas>
+        </div>
+        <div id="st-expense-list" style="margin-top: 10px;"></div>
+      </div>
+
+      <!-- 3E: Additional Insights -->
+      <div class="card">
+        <div class="hero-label" style="margin-bottom: 6px;">Additional Insights</div>
+        <div class="insight-row"><span>Best Earning Day</span><strong id="ins-best-day">—</strong></div>
+        <div class="insight-row"><span>Highest Distance Day</span><strong id="ins-high-dist">—</strong></div>
+        <div class="insight-row"><span>Highest Earning Platform</span><strong id="ins-high-plat">—</strong></div>
+        <div class="insight-row"><span>Avg Daily Income</span><strong id="ins-avg-inc">₹0</strong></div>
+        <div class="insight-row"><span>Avg Daily Expenses</span><strong id="ins-avg-exp">₹0</strong></div>
+      </div>
+    </section>
+
+    <!-- PAGE 4: TRANSACTION HISTORY -->
+    <section id="page-history" class="page">
+      <div class="page-title-row">
+        <h1 class="page-title">History</h1>
+        <button id="hist-export-csv" class="btn btn-secondary btn-sm">Export CSV</button>
+      </div>
+
+      <div class="segmented" id="history-tabs">
+        <button class="seg-btn active" data-hist-tab="transactions">Transactions</button>
+        <button class="seg-btn" data-hist-tab="driving">Driving Records</button>
+      </div>
+
+      <!-- Transactions Tab -->
+      <div id="hist-tx-panel">
+        <div class="card" style="padding: 12px;">
+          <input id="hist-search" type="search" placeholder="Search notes, category, platform..." class="form-control" style="margin-bottom: 8px; padding: 9px 12px; font-size: 13px;" />
+          <div class="filter-grid">
+            <select id="f-platform" class="filter-select">
+              <option value="All">All Platforms</option>
+              <option value="Rapido">Rapido</option>
+              <option value="Porter">Porter</option>
+              <option value="General / Shared">General</option>
+            </select>
+            <select id="f-type" class="filter-select">
+              <option value="All">All Types</option>
+              <option value="Income">Income</option>
+              <option value="Expense">Expense</option>
+            </select>
+            <select id="f-payment" class="filter-select">
+              <option value="All">All Payments</option>
+              <option value="UPI">UPI</option>
+              <option value="Cash">Cash</option>
+            </select>
+            <select id="f-category" class="filter-select">
+              <option value="All">All Categories</option>
+              <option value="Fuel">Fuel</option>
+              <option value="Food">Food</option>
+              <option value="Maintenance">Maintenance</option>
+              <option value="Rapido Charges">Rapido Charges</option>
+              <option value="Porter Charges">Porter Charges</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div class="filter-grid" style="margin-bottom: 0;">
+            <select id="f-date-preset" class="filter-select">
+              <option value="all">All Dates</option>
+              <option value="today">Today</option>
+              <option value="yesterday">Yesterday</option>
+              <option value="custom">Custom Range</option>
+            </select>
+            <button id="f-reset-btn" class="btn btn-secondary btn-sm" style="width: 100%;">Reset Filters</button>
+          </div>
+          <div id="f-custom-range" class="filter-grid hidden" style="margin-top: 8px; margin-bottom: 0;">
+            <input id="f-start-date" type="date" class="filter-select" />
+            <input id="f-end-date" type="date" class="filter-select" />
+          </div>
+        </div>
+
+        <div id="hist-tx-list"></div>
+      </div>
+
+      <!-- Driving Records Tab -->
+      <div id="hist-drv-panel" class="hidden">
+        <div id="hist-drv-list"></div>
+      </div>
+    </section>
+
+    <!-- PAGE 5: SETTINGS -->
+    <section id="page-settings" class="page">
+      <div class="page-title-row">
+        <h1 class="page-title">Settings</h1>
+      </div>
+
+      <div class="card">
+        <div class="hero-label" style="margin-bottom: 10px;">Appearance</div>
+        <div class="segmented" style="margin-bottom: 0;">
+          <button id="theme-dark-btn" class="seg-btn active">Dark Mode</button>
+          <button id="theme-light-btn" class="seg-btn">Light Mode</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="hero-label" style="margin-bottom: 8px;">General Preferences</div>
+        <div class="summary-row">
+          <span>Currency</span>
+          <strong>Indian Rupee (₹ INR)</strong>
+        </div>
+      </div>
+
+      <form id="settings-driving-form" class="card">
+        <div class="hero-label" style="margin-bottom: 10px;">Driving Settings</div>
+        <div class="form-group">
+          <label class="form-label" for="set-mileage">Default Mileage (km/L)</label>
+          <input id="set-mileage" type="number" step="0.1" min="1" class="form-control" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="set-fuel-price">Fuel Price (₹ / Litre) — Estimate Only</label>
+          <input id="set-fuel-price" type="number" step="0.1" min="1" class="form-control" required />
+        </div>
+        <button type="submit" class="btn btn-primary">Save Driving Settings</button>
+      </form>
+
+      <div class="card">
+        <div class="hero-label" style="margin-bottom: 10px;">Data Management</div>
+        <div class="insight-row">
+          <span>Google Sheets Status</span>
+          <strong id="set-gs-status" class="text-yellow">Not Connected (Local)</strong>
+        </div>
+        <div class="insight-row">
+          <span>Sync Status</span>
+          <strong id="set-sync-status" class="text-muted">Local Storage Active</strong>
+        </div>
+        <div class="insight-row" style="margin-bottom: 12px;">
+          <span>Last Successful Sync</span>
+          <strong id="set-last-sync" class="text-muted">Not synced yet</strong>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 10px;">
+          <label class="form-label" for="set-gas-url">Google Apps Script Web App URL</label>
+          <input id="set-gas-url" type="url" placeholder="https://script.google.com/macros/s/.../exec" class="form-control" style="font-size: 12px; padding: 10px 12px;" />
+        </div>
+
+        <div style="display: grid; gap: 8px;">
+          <button id="set-sync-now" class="btn btn-primary">Save URL &amp; Sync to Sheets</button>
+          <button id="set-pull-sheets" class="btn btn-secondary">Pull Latest from Sheets</button>
+          <button id="set-export-csv" class="btn btn-secondary">Export All Transactions (CSV)</button>
+          <button id="set-export-excel" class="btn btn-secondary" disabled title="Coming in Stage 4">Export Excel (Coming Soon)</button>
+          <button id="set-backup-json" class="btn btn-secondary">Manual JSON Backup</button>
+          <button id="set-reset-demo" class="btn btn-danger">Reset to Sample Demo Data</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- PAGE 6: DAILY CLOSING REPORT -->
+    <section id="page-closing" class="page">
+      <div class="page-title-row">
+        <h1 class="page-title">Daily Closing Report</h1>
+        <input id="closing-date" type="date" class="filter-select" style="width: auto;" />
+      </div>
+
+      <div class="card hero-card">
+        <div class="hero-label" style="margin-bottom: 10px;">Financial Summary</div>
+        <div class="insight-row"><span>Total Earnings</span><strong id="cl-total-earn">₹0</strong></div>
+        <div class="insight-row"><span>Rapido Earnings</span><strong id="cl-rapido" class="text-yellow">₹0</strong></div>
+        <div class="insight-row"><span>Porter Earnings</span><strong id="cl-porter" class="text-blue">₹0</strong></div>
+        <div class="insight-row"><span>Total Expenses</span><strong id="cl-expenses" class="text-red">₹0</strong></div>
+        <div class="summary-divider"></div>
+        <div class="summary-row">
+          <span style="font-weight: 700; font-size: 16px;">Net Profit</span>
+          <strong id="cl-net-profit" class="text-green" style="font-size: 24px;">₹0</strong>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="hero-label" style="margin-bottom: 10px;">Driving Summary</div>
+        <div class="insight-row"><span>Distance Travelled</span><strong id="cl-distance">0 km</strong></div>
+        <div class="insight-row"><span>Average Mileage</span><strong id="cl-mileage">0 km/L</strong></div>
+        <div class="insight-row"><span>Estimated Fuel Consumption</span><strong id="cl-fuel">0.00 L</strong></div>
+        <div class="insight-row"><span>Earnings per km</span><strong id="cl-epk">₹0.00</strong></div>
+        <div class="insight-row"><span>Net Profit per km</span><strong id="cl-ppk" class="text-green">₹0.00</strong></div>
+      </div>
+
+      <button id="closing-done-btn" class="btn btn-primary" style="margin-top: 6px;">Done — Return to Home</button>
+    </section>
+  </div>
+
+  <!-- FIXED BOTTOM NAVIGATION -->
+  <nav class="bottom-nav" aria-label="Primary Navigation">
+    <button class="nav-btn active" data-nav="home">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span>Home</span>
+    </button>
+    <button class="nav-btn" data-nav="stats">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      <span>Stats</span>
+    </button>
+    <div class="nav-add-wrap">
+      <button id="nav-add-btn" class="nav-add-btn" aria-label="Add Entry">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      </button>
+    </div>
+    <button class="nav-btn" data-nav="history">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      <span>History</span>
+    </button>
+    <button class="nav-btn" data-nav="settings">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      <span>Settings</span>
+    </button>
+  </nav>
+
+  <!-- DETAIL / CONFIRMATION MODAL -->
+  <div id="modal-backdrop" class="modal-backdrop">
+    <div class="modal-sheet">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+        <h2 id="modal-title" style="font-size: 17px; font-weight: 700;">Details</h2>
+        <button id="modal-close-btn" class="btn btn-secondary btn-sm">Close</button>
+      </div>
+      <div id="modal-body"></div>
+      <div id="modal-actions" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px;"></div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      'use strict';
+
+      // =========================================================
+      // 1. DATA SERVICE (localStorage abstraction for future GAS)
+      // =========================================================
+      const STORAGE_KEYS = {
+        TRANSACTIONS: 'roadledger_transactions_v1',
+        DRIVING: 'roadledger_daily_records_v1',
+        SETTINGS: 'roadledger_settings_v1'
+      };
+
+      const EXPENSE_CATEGORIES = [
+        'Fuel',
+        'Food',
+        'Maintenance',
+        'Rapido Charges',
+        'Porter Charges',
+        'Other'
+      ];
+
+      function safeGet(key, fallback) {
+        try {
+          const raw = localStorage.getItem(key);
+          return raw ? JSON.parse(raw) : fallback;
+        } catch (e) {
+          return fallback;
+        }
+      }
+
+      function safeSet(key, value) {
+        try {
+          localStorage.setItem(key, JSON.stringify(value));
+        } catch (e) {
+          // Ignore storage quota errors in restricted frames
+        }
+      }
+
+      function getTodayISO() {
+        const d = new Date();
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${y}-${m}-${day}`;
+      }
+
+      function shiftDateISO(baseIso, deltaDays) {
+        const [y, m, d] = baseIso.split('-').map(Number);
+        const dt = new Date(y, m - 1, d + deltaDays);
+        return `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, '0')}-${String(dt.getDate()).padStart(2, '0')}`;
+      }
+
+      function createSeedData() {
+        const today = getTodayISO();
+        const d1 = shiftDateISO(today, -1);
+        const d2 = shiftDateISO(today, -2);
+        const d3 = shiftDateISO(today, -3);
+        const d4 = shiftDateISO(today, -4);
+        const d5 = shiftDateISO(today, -5);
+        const now = new Date().toISOString();
+
+        const transactions = [
+          { id: 'tx_1', date: today, time: '09:15', type: 'Income', amount: 420, platform: 'Rapido', category: 'Ride Earnings', paymentMethod: 'UPI', allocation: 'Rapido', notes: 'Morning office commute rides', createdAt: now, updatedAt: now },
+          { id: 'tx_2', date: today, time: '10:30', type: 'Expense', amount: 150, platform: 'General / Shared', category: 'Fuel', paymentMethod: 'UPI', allocation: 'General / Shared', notes: 'HP Petrol refill', createdAt: now, updatedAt: now },
+          { id: 'tx_3', date: today, time: '12:40', type: 'Income', amount: 500, platform: 'Porter', category: 'Delivery Earnings', paymentMethod: 'Cash', allocation: 'Porter', notes: '2 parcel trips', createdAt: now, updatedAt: now },
+          { id: 'tx_4', date: today, time: '15:20', type: 'Income', amount: 330, platform: 'Rapido', category: 'Ride Earnings', paymentMethod: 'UPI', allocation: 'Rapido', notes: 'Afternoon city rides', createdAt: now, updatedAt: now },
+          { id: 'tx_5', date: today, time: '16:10', type: 'Expense', amount: 30, platform: 'Rapido', category: 'Rapido Charges', paymentMethod: 'UPI', allocation: 'Rapido', notes: 'Platform commission', createdAt: now, updatedAt: now },
+
+          { id: 'tx_6', date: d1, time: '11:00', type: 'Income', amount: 890, platform: 'Rapido', category: 'Ride Earnings', paymentMethod: 'UPI', allocation: 'Rapido', notes: 'Full morning shift', createdAt: now, updatedAt: now },
+          { id: 'tx_7', date: d1, time: '14:15', type: 'Income', amount: 640, platform: 'Porter', category: 'Delivery Earnings', paymentMethod: 'UPI', allocation: 'Porter', notes: 'Electronics delivery', createdAt: now, updatedAt: now },
+          { id: 'tx_8', date: d1, time: '17:30', type: 'Expense', amount: 220, platform: 'General / Shared', category: 'Fuel', paymentMethod: 'Cash', allocation: 'General / Shared', notes: 'Fuel top-up', createdAt: now, updatedAt: now },
+          { id: 'tx_9', date: d1, time: '18:00', type: 'Expense', amount: 65, platform: 'General / Shared', category: 'Food', paymentMethod: 'UPI', allocation: 'General / Shared', notes: 'Tea & snacks', createdAt: now, updatedAt: now },
+
+          { id: 'tx_10', date: d2, time: '10:05', type: 'Income', amount: 720, platform: 'Rapido', category: 'Ride Earnings', paymentMethod: 'Cash', allocation: 'Rapido', notes: 'Airport & tech park', createdAt: now, updatedAt: now },
+          { id: 'tx_11', date: d2, time: '13:45', type: 'Income', amount: 480, platform: 'Porter', category: 'Delivery Earnings', paymentMethod: 'UPI', allocation: 'Porter', notes: 'Warehouse batch', createdAt: now, updatedAt: now },
+          { id: 'tx_12', date: d2, time: '16:00', type: 'Expense', amount: 45, platform: 'Porter', category: 'Porter Charges', paymentMethod: 'UPI', allocation: 'Porter', notes: 'Porter service fee', createdAt: now, updatedAt: now },
+
+          { id: 'tx_13', date: d3, time: '09:40', type: 'Income', amount: 960, platform: 'Rapido', category: 'Ride Earnings', paymentMethod: 'UPI', allocation: 'Rapido', notes: 'Peak surge hours', createdAt: now, updatedAt: now },
+          { id: 'tx_14', date: d3, time: '19:10', type: 'Expense', amount: 350, platform: 'General / Shared', category: 'Maintenance', paymentMethod: 'Cash', allocation: 'General / Shared', notes: 'Chain lube & brake check', createdAt: now, updatedAt: now },
+
+          { id: 'tx_15', date: d4, time: '11:20', type: 'Income', amount: 610, platform: 'Porter', category: 'Delivery Earnings', paymentMethod: 'UPI', allocation: 'Porter', notes: 'B2B courier runs', createdAt: now, updatedAt: now },
+          { id: 'tx_16', date: d4, time: '15:00', type: 'Income', amount: 540, platform: 'Rapido', category: 'Ride Earnings', paymentMethod: 'Cash', allocation: 'Rapido', notes: 'Evening rides', createdAt: now, updatedAt: now },
+          { id: 'tx_17', date: d4, time: '18:20', type: 'Expense', amount: 200, platform: 'General / Shared', category: 'Fuel', paymentMethod: 'UPI', allocation: 'General / Shared', notes: 'Petrol', createdAt: now, updatedAt: now },
+
+          { id: 'tx_18', date: d5, time: '10:30', type: 'Income', amount: 810, platform: 'Rapido', category: 'Ride Earnings', paymentMethod: 'UPI', allocation: 'Rapido', notes: 'Weekend rides', createdAt: now, updatedAt: now },
+          { id: 'tx_19', date: d5, time: '14:50', type: 'Expense', amount: 80, platform: 'General / Shared', category: 'Food', paymentMethod: 'Cash', allocation: 'General / Shared', notes: 'Lunch', createdAt: now, updatedAt: now }
+        ];
+
+        const dailyRecords = [
+          { id: 'drv_1', date: today, distance: 85.5, mileage: 45, estimatedFuel: 1.9, createdAt: now, updatedAt: now },
+          { id: 'drv_2', date: d1, distance: 96.0, mileage: 45, estimatedFuel: 2.13, createdAt: now, updatedAt: now },
+          { id: 'drv_3', date: d2, distance: 78.0, mileage: 44, estimatedFuel: 1.77, createdAt: now, updatedAt: now },
+          { id: 'drv_4', date: d3, distance: 68.5, mileage: 45, estimatedFuel: 1.52, createdAt: now, updatedAt: now },
+          { id: 'drv_5', date: d4, distance: 82.0, mileage: 46, estimatedFuel: 1.78, createdAt: now, updatedAt: now },
+          { id: 'drv_6', date: d5, distance: 62.0, mileage: 45, estimatedFuel: 1.38, createdAt: now, updatedAt: now }
+        ];
+
+        const settings = {
+          defaultMileage: 45,
+          fuelPrice: 100,
+          currency: 'INR',
+          theme: 'dark',
+          lastSync: null
+        };
+
+        return { transactions, dailyRecords, settings };
+      }
+
+      const DataService = {
+        init() {
+          let txs = safeGet(STORAGE_KEYS.TRANSACTIONS, null);
+          let drv = safeGet(STORAGE_KEYS.DRIVING, null);
+          let set = safeGet(STORAGE_KEYS.SETTINGS, null);
+          if (!txs || !drv || !set) {
+            const seed = createSeedData();
+            if (!txs) { txs = seed.transactions; safeSet(STORAGE_KEYS.TRANSACTIONS, txs); }
+            if (!drv) { drv = seed.dailyRecords; safeSet(STORAGE_KEYS.DRIVING, drv); }
+            if (!set) { set = seed.settings; safeSet(STORAGE_KEYS.SETTINGS, set); }
+          }
+        },
+        getTransactions() {
+          return safeGet(STORAGE_KEYS.TRANSACTIONS, []);
+        },
+        saveTransaction(tx) {
+          const list = this.getTransactions();
+          const idx = list.findIndex(item => item.id === tx.id);
+          if (idx >= 0) {
+            list[idx] = tx;
+          } else {
+            list.unshift(tx);
+          }
+          safeSet(STORAGE_KEYS.TRANSACTIONS, list);
+          return tx;
+        },
+        deleteTransaction(id) {
+          const list = this.getTransactions().filter(item => item.id !== id);
+          safeSet(STORAGE_KEYS.TRANSACTIONS, list);
+        },
+        getDailyRecords() {
+          return safeGet(STORAGE_KEYS.DRIVING, []);
+        },
+        upsertDailyRecord(record) {
+          const list = this.getDailyRecords();
+          const idx = list.findIndex(r => r.date === record.date);
+          let updated = false;
+          if (idx >= 0) {
+            record.id = list[idx].id;
+            record.createdAt = list[idx].createdAt;
+            list[idx] = record;
+            updated = true;
+          } else {
+            list.unshift(record);
+          }
+          list.sort((a, b) => b.date.localeCompare(a.date));
+          safeSet(STORAGE_KEYS.DRIVING, list);
+          return { record, updated };
+        },
+        deleteDailyRecord(id) {
+          const list = this.getDailyRecords().filter(r => r.id !== id);
+          safeSet(STORAGE_KEYS.DRIVING, list);
+        },
+        getSettings() {
+          return safeGet(STORAGE_KEYS.SETTINGS, {
+            defaultMileage: 45,
+            fuelPrice: 100,
+            currency: 'INR',
+            theme: 'dark',
+            lastSync: null
+          });
+        },
+        saveSettings(partial) {
+          const next = { ...this.getSettings(), ...partial };
+          safeSet(STORAGE_KEYS.SETTINGS, next);
+          return next;
+        },
+        resetDemoData() {
+          const seed = createSeedData();
+          safeSet(STORAGE_KEYS.TRANSACTIONS, seed.transactions);
+          safeSet(STORAGE_KEYS.DRIVING, seed.dailyRecords);
+          const curTheme = this.getSettings().theme;
+          safeSet(STORAGE_KEYS.SETTINGS, { ...seed.settings, theme: curTheme });
+        }
+      };
+
+      // =========================================================
+      // 2. HELPERS & FORMATTING
+      // =========================================================
+      function fmtINR(val, decimals = 0) {
+        const num = Number(val) || 0;
+        return '₹' + num.toLocaleString('en-IN', {
+          minimumFractionDigits: decimals,
+          maximumFractionDigits: decimals
+        });
+      }
+
+      function fmtDatePretty(iso) {
+        if (!iso) return '—';
+        const [y, m, d] = iso.split('-').map(Number);
+        const dt = new Date(y, m - 1, d);
+        return dt.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+      }
+
+      function fmtDateShort(iso) {
+        if (!iso) return '—';
+        const [y, m, d] = iso.split('-').map(Number);
+        const dt = new Date(y, m - 1, d);
+        return dt.toLocaleDateString('en-IN', { day: '2-digit', month: 'short' });
+      }
+
+      let toastTimer = null;
+      function showToast(msg, isError = false) {
+        const el = document.getElementById('toast');
+        el.textContent = msg;
+        el.className = 'toast show' + (isError ? ' error' : '');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => {
+          el.classList.remove('show');
+        }, 2500);
+      }
+
+      // =========================================================
+      // 3. STATE & NAVIGATION
+      // =========================================================
+      const state = {
+        activePage: 'home',
+        addTab: 'transaction',
+        txType: 'Income',
+        txPlatform: 'Rapido',
+        txCategory: 'Fuel',
+        txAllocation: 'General / Shared',
+        txPayment: 'UPI',
+        statsRange: 'weekly',
+        historyTab: 'transactions',
+        charts: {
+          trend: null,
+          distance: null,
+          expenses: null
+        }
+      };
+
+      function applyTheme(theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+        const darkBtn = document.getElementById('theme-dark-btn');
+        const lightBtn = document.getElementById('theme-light-btn');
+        darkBtn.classList.toggle('active', theme === 'dark');
+        lightBtn.classList.toggle('active', theme === 'light');
+        if (state.activePage === 'stats') {
+          renderStats();
+        }
+      }
+
+      function navigateTo(pageName) {
+        state.activePage = pageName;
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        const target = document.getElementById(`page-${pageName}`);
+        if (target) target.classList.add('active');
+
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.nav === pageName);
+        });
+
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+
+        if (pageName === 'home') renderHome();
+        if (pageName === 'add') prepareAddPage();
+        if (pageName === 'stats') renderStats();
+        if (pageName === 'history') renderHistory();
+        if (pageName === 'settings') renderSettings();
+        if (pageName === 'closing') renderClosingReport();
+      }
+
+      // =========================================================
+      // 4. PAGE 1: HOME DASHBOARD
+      // =========================================================
+      function renderHome() {
+        const today = getTodayISO();
+        document.getElementById('home-date-label').textContent = fmtDatePretty(today);
+
+        const txs = DataService.getTransactions().filter(t => t.date === today);
+        const drv = DataService.getDailyRecords().find(r => r.date === today);
+
+        let rapidoTotal = 0, rapidoCount = 0;
+        let porterTotal = 0, porterCount = 0;
+        let totalExpenses = 0;
+
+        txs.forEach(t => {
+          if (t.type === 'Income') {
+            if (t.platform === 'Rapido') { rapidoTotal += t.amount; rapidoCount++; }
+            if (t.platform === 'Porter') { porterTotal += t.amount; porterCount++; }
+          } else {
+            totalExpenses += t.amount;
+          }
+        });
+
+        const totalIncome = rapidoTotal + porterTotal;
+        const netProfit = totalIncome - totalExpenses;
+
+        document.getElementById('home-total-income').textContent = fmtINR(totalIncome);
+        document.getElementById('home-rapido-inline').textContent = fmtINR(rapidoTotal);
+        document.getElementById('home-porter-inline').textContent = fmtINR(porterTotal);
+
+        document.getElementById('home-rapido-total').textContent = fmtINR(rapidoTotal);
+        document.getElementById('home-rapido-count').textContent = `${rapidoCount} income ${rapidoCount === 1 ? 'entry' : 'entries'}`;
+
+        document.getElementById('home-porter-total').textContent = fmtINR(porterTotal);
+        document.getElementById('home-porter-count').textContent = `${porterCount} income ${porterCount === 1 ? 'entry' : 'entries'}`;
+
+        document.getElementById('home-total-expenses').textContent = fmtINR(totalExpenses);
+        const profitEl = document.getElementById('home-net-profit');
+        profitEl.textContent = fmtINR(netProfit);
+        profitEl.className = netProfit >= 0 ? 'text-green' : 'text-red';
+
+        const dist = drv ? drv.distance : 0;
+        const fuel = drv && drv.mileage > 0 ? dist / drv.mileage : 0;
+        const epk = dist > 0 ? totalIncome / dist : 0;
+
+        document.getElementById('home-distance').textContent = `${dist.toFixed(1)} km`;
+        document.getElementById('home-fuel').textContent = `${fuel.toFixed(2)} L`;
+        document.getElementById('home-epk').textContent = fmtINR(epk, 2);
+      }
+
+      // =========================================================
+      // 5. PAGE 2: ADD ENTRY (TRANSACTION & DRIVING)
+      // =========================================================
+      function prepareAddPage() {
+        const today = getTodayISO();
+        if (!document.getElementById('tx-edit-id').value) {
+          document.getElementById('tx-date').value = today;
+        }
+        if (!document.getElementById('drv-date').value) {
+          document.getElementById('drv-date').value = today;
+        }
+        const settings = DataService.getSettings();
+        if (!document.getElementById('drv-mileage').value) {
+          document.getElementById('drv-mileage').value = settings.defaultMileage;
+        }
+        updateDrivingPreview();
+        syncAddFormUI();
+      }
+
+      function switchAddTab(tab) {
+        state.addTab = tab;
+        document.querySelectorAll('#add-mode-tabs .seg-btn').forEach(b => {
+          b.classList.toggle('active', b.dataset.addTab === tab);
+        });
+        document.getElementById('tx-form').classList.toggle('hidden', tab !== 'transaction');
+        document.getElementById('driving-form').classList.toggle('hidden', tab !== 'driving');
+      }
+
+      function syncAddFormUI() {
+        const isInc = state.txType === 'Income';
+        document.getElementById('btn-type-income').className = 'seg-btn' + (isInc ? ' active-income' : '');
+        document.getElementById('btn-type-expense').className = 'seg-btn' + (!isInc ? ' active-expense' : '');
+        document.getElementById('tx-platform-group').classList.toggle('hidden', !isInc);
+        document.getElementById('tx-category-group').classList.toggle('hidden', isInc);
+        document.getElementById('tx-allocation-group').classList.toggle('hidden', isInc);
+
+        // Platform pills
+        document.querySelectorAll('[data-tx-platform]').forEach(p => {
+          const val = p.dataset.txPlatform;
+          p.className = 'pill';
+          if (val === state.txPlatform) {
+            p.classList.add(val === 'Rapido' ? 'active-yellow' : 'active-blue');
+          }
+        });
+
+        // Category pills & auto-allocation rules
+        document.querySelectorAll('[data-tx-category]').forEach(p => {
+          p.className = 'pill' + (p.dataset.txCategory === state.txCategory ? ' active' : '');
+        });
+
+        const allocLocked = state.txCategory === 'Rapido Charges' || state.txCategory === 'Porter Charges';
+        if (state.txCategory === 'Rapido Charges') state.txAllocation = 'Rapido';
+        if (state.txCategory === 'Porter Charges') state.txAllocation = 'Porter';
+
+        document.querySelectorAll('[data-tx-alloc]').forEach(p => {
+          const val = p.dataset.txAlloc;
+          p.className = 'pill';
+          p.disabled = allocLocked && val !== state.txAllocation;
+          if (val === state.txAllocation) {
+            if (val === 'Rapido') p.classList.add('active-yellow');
+            else if (val === 'Porter') p.classList.add('active-blue');
+            else p.classList.add('active');
+          }
+        });
+
+        document.getElementById('alloc-helper').textContent = allocLocked
+          ? `${state.txCategory} is automatically allocated to ${state.txAllocation}.`
+          : 'Allocate platform-specific costs to calculate true platform profit.';
+
+        // Payment pills
+        document.querySelectorAll('[data-tx-payment]').forEach(p => {
+          p.className = 'pill' + (p.dataset.txPayment === state.txPayment ? ' active' : '');
+        });
+      }
+
+      function updateDrivingPreview() {
+        const dist = parseFloat(document.getElementById('drv-distance').value) || 0;
+        const mil = parseFloat(document.getElementById('drv-mileage').value) || 0;
+        const fuel = mil > 0 && dist > 0 ? dist / mil : 0;
+        const fuelPrice = DataService.getSettings().fuelPrice || 100;
+        const estCost = fuel * fuelPrice;
+
+        document.getElementById('drv-fuel-preview').textContent = `${fuel.toFixed(2)} L`;
+        document.getElementById('drv-fuel-cost-preview').textContent =
+          `Est. Fuel Cost: ${fmtINR(estCost, 0)} (Estimate only — not recorded as an expense)`;
+      }
+
+      function resetTxForm() {
+        document.getElementById('tx-edit-id').value = '';
+        document.getElementById('tx-amount').value = '';
+        document.getElementById('tx-notes').value = '';
+        document.getElementById('tx-date').value = getTodayISO();
+        document.getElementById('add-page-title').textContent = 'Add Entry';
+        document.getElementById('tx-submit-btn').textContent = 'Save Transaction';
+        document.getElementById('tx-cancel-edit-btn').classList.add('hidden');
+      }
+
+      // =========================================================
+      // 6. PAGE 3: STATISTICS & ANALYTICS
+      // =========================================================
+      function getStatsDateBounds() {
+        const today = getTodayISO();
+        if (state.statsRange === 'daily') return { start: today, end: today };
+        if (state.statsRange === 'weekly') return { start: shiftDateISO(today, -6), end: today };
+        if (state.statsRange === 'monthly') return { start: today.slice(0, 8) + '01', end: today };
+        if (state.statsRange === 'custom') {
+          const s = document.getElementById('stats-start').value || shiftDateISO(today, -6);
+          const e = document.getElementById('stats-end').value || today;
+          return { start: s <= e ? s : e, end: s <= e ? e : s };
+        }
+        return { start: '0000-01-01', end: '9999-12-31' };
+      }
+
+      function renderStats() {
+        const { start, end } = getStatsDateBounds();
+        const txs = DataService.getTransactions().filter(t => t.date >= start && t.date <= end);
+        const drvs = DataService.getDailyRecords().filter(r => r.date >= start && r.date <= end);
+
+        let totalIncome = 0, totalExpenses = 0;
+        let rapEarn = 0, rapChg = 0, rapOth = 0, rapCnt = 0;
+        let porEarn = 0, porChg = 0, porOth = 0, porCnt = 0;
+        let genExp = 0;
+
+        const catTotals = {};
+        EXPENSE_CATEGORIES.forEach(c => { catTotals[c] = 0; });
+
+        const dayMap = {};
+        function ensureDay(d) {
+          if (!dayMap[d]) dayMap[d] = { income: 0, expense: 0, distance: 0 };
+        }
+
+        txs.forEach(t => {
+          ensureDay(t.date);
+          if (t.type === 'Income') {
+            totalIncome += t.amount;
+            dayMap[t.date].income += t.amount;
+            if (t.platform === 'Rapido') { rapEarn += t.amount; rapCnt++; }
+            if (t.platform === 'Porter') { porEarn += t.amount; porCnt++; }
+          } else {
+            totalExpenses += t.amount;
+            dayMap[t.date].expense += t.amount;
+            if (catTotals.hasOwnProperty(t.category)) {
+              catTotals[t.category] += t.amount;
+            } else {
+              catTotals['Other'] += t.amount;
+            }
+            if (t.allocation === 'Rapido') {
+              if (t.category === 'Rapido Charges') rapChg += t.amount;
+              else rapOth += t.amount;
+            } else if (t.allocation === 'Porter') {
+              if (t.category === 'Porter Charges') porChg += t.amount;
+              else porOth += t.amount;
+            } else {
+              genExp += t.amount;
+            }
+          }
+        });
+
+        let totalDist = 0, totalFuel = 0;
+        drvs.forEach(r => {
+          ensureDay(r.date);
+          const f = r.mileage > 0 ? r.distance / r.mileage : 0;
+          totalDist += r.distance;
+          totalFuel += f;
+          dayMap[r.date].distance += r.distance;
+        });
+
+        const netProfit = totalIncome - totalExpenses;
+        document.getElementById('st-income').textContent = fmtINR(totalIncome);
+        document.getElementById('st-expenses').textContent = fmtINR(totalExpenses);
+        const stProfitEl = document.getElementById('st-profit');
+        stProfitEl.textContent = fmtINR(netProfit);
+        stProfitEl.className = 'driving-metric-val ' + (netProfit >= 0 ? 'text-green' : 'text-red');
+
+        // Platform Comparison
+        const rapNet = rapEarn - rapChg - rapOth;
+        const porNet = porEarn - porChg - porOth;
+        document.getElementById('st-rap-earn').textContent = fmtINR(rapEarn);
+        document.getElementById('st-rap-chg').textContent = fmtINR(rapChg);
+        document.getElementById('st-rap-oth').textContent = fmtINR(rapOth);
+        document.getElementById('st-rap-net').textContent = fmtINR(rapNet);
+        document.getElementById('st-rap-cnt').textContent = rapCnt;
+
+        document.getElementById('st-por-earn').textContent = fmtINR(porEarn);
+        document.getElementById('st-por-chg').textContent = fmtINR(porChg);
+        document.getElementById('st-por-oth').textContent = fmtINR(porOth);
+        document.getElementById('st-por-net').textContent = fmtINR(porNet);
+        document.getElementById('st-por-cnt').textContent = porCnt;
+
+        const topBadge = document.getElementById('st-top-platform');
+        if (rapNet === 0 && porNet === 0) {
+          topBadge.textContent = 'No Data';
+          topBadge.className = 'tag-chip badge-general';
+        } else if (rapNet >= porNet) {
+          topBadge.textContent = 'Top: Rapido';
+          topBadge.className = 'tag-chip badge-rapido';
+        } else {
+          topBadge.textContent = 'Top: Porter';
+          topBadge.className = 'tag-chip badge-porter';
+        }
+        document.getElementById('st-general-exp-note').textContent =
+          `*Platform Net excludes General / Shared expenses (${fmtINR(genExp)}).`;
+
+        // Driving Analytics
+        const avgDist = drvs.length > 0 ? totalDist / drvs.length : 0;
+        const avgMileage = totalFuel > 0 ? totalDist / totalFuel : 0;
+        const epk = totalDist > 0 ? totalIncome / totalDist : 0;
+        const ppk = totalDist > 0 ? netProfit / totalDist : 0;
+
+        document.getElementById('st-dist').textContent = `${totalDist.toFixed(1)} km`;
+        document.getElementById('st-avg-dist').textContent = `${avgDist.toFixed(1)} km`;
+        document.getElementById('st-fuel').textContent = `${totalFuel.toFixed(2)} L`;
+        document.getElementById('st-mileage').textContent = `${avgMileage.toFixed(1)} km/L`;
+        document.getElementById('st-epk').textContent = fmtINR(epk, 2);
+        document.getElementById('st-ppk').textContent = fmtINR(ppk, 2);
+
+        // Additional Insights
+        const sortedDays = Object.keys(dayMap).sort();
+        let bestDay = null, bestInc = -1;
+        let highDistDay = null, highDist = -1;
+        sortedDays.forEach(d => {
+          if (dayMap[d].income > bestInc) { bestInc = dayMap[d].income; bestDay = d; }
+          if (dayMap[d].distance > highDist) { highDist = dayMap[d].distance; highDistDay = d; }
+        });
+
+        const activeDayCount = sortedDays.length || 1;
+        document.getElementById('ins-best-day').textContent = bestDay && bestInc > 0 ? `${fmtDateShort(bestDay)} (${fmtINR(bestInc)})` : '—';
+        document.getElementById('ins-high-dist').textContent = highDistDay && highDist > 0 ? `${fmtDateShort(highDistDay)} (${highDist.toFixed(1)} km)` : '—';
+        document.getElementById('ins-high-plat').textContent = rapEarn === 0 && porEarn === 0 ? '—' : (rapEarn >= porEarn ? `Rapido (${fmtINR(rapEarn)})` : `Porter (${fmtINR(porEarn)})`);
+        document.getElementById('ins-avg-inc').textContent = fmtINR(totalIncome / activeDayCount);
+        document.getElementById('ins-avg-exp').textContent = fmtINR(totalExpenses / activeDayCount);
+
+        // Expense Breakdown List
+        const expListEl = document.getElementById('st-expense-list');
+        expListEl.innerHTML = EXPENSE_CATEGORIES.map(c => `
+          <div class="insight-row">
+            <span>${c}</span>
+            <strong>${fmtINR(catTotals[c])}</strong>
+          </div>
+        `).join('');
+
+        // Render Chart.js graphs
+        renderCharts(sortedDays, dayMap, catTotals);
+      }
+
+      function renderCharts(sortedDays, dayMap, catTotals) {
+        const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+        const textColor = isDark ? '#94a3b8' : '#475569';
+        const gridColor = isDark ? 'rgba(148,163,184,0.12)' : 'rgba(15,23,42,0.08)';
+
+        const labels = sortedDays.map(fmtDateShort);
+        const incSeries = sortedDays.map(d => dayMap[d].income);
+        const expSeries = sortedDays.map(d => dayMap[d].expense);
+        const distSeries = sortedDays.map(d => dayMap[d].distance);
+
+        if (state.charts.trend) state.charts.trend.destroy();
+        state.charts.trend = new Chart(document.getElementById('chart-earnings-trend'), {
+          type: 'bar',
+          data: {
+            labels: labels.length ? labels : ['No Data'],
+            datasets: [
+              { label: 'Income', data: incSeries.length ? incSeries : [0], backgroundColor: '#10b981', borderRadius: 6 },
+              { label: 'Expenses', data: expSeries.length ? expSeries : [0], backgroundColor: '#ef4444', borderRadius: 6 }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { labels: { color: textColor, boxWidth: 12 } } },
+            scales: {
+              x: { ticks: { color: textColor }, grid: { display: false } },
+              y: { ticks: { color: textColor }, grid: { color: gridColor } }
+            }
+          }
+        });
+
+        if (state.charts.distance) state.charts.distance.destroy();
+        state.charts.distance = new Chart(document.getElementById('chart-distance'), {
+          type: 'line',
+          data: {
+            labels: labels.length ? labels : ['No Data'],
+            datasets: [{
+              label: 'Distance (km)',
+              data: distSeries.length ? distSeries : [0],
+              borderColor: '#3b82f6',
+              backgroundColor: 'rgba(59, 130, 246, 0.16)',
+              fill: true,
+              tension: 0.32,
+              pointRadius: 4
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { labels: { color: textColor, boxWidth: 12 } } },
+            scales: {
+              x: { ticks: { color: textColor }, grid: { display: false } },
+              y: { ticks: { color: textColor }, grid: { color: gridColor } }
+            }
+          }
+        });
+
+        if (state.charts.expenses) state.charts.expenses.destroy();
+        const catValues = EXPENSE_CATEGORIES.map(c => catTotals[c]);
+        const hasExp = catValues.some(v => v > 0);
+        state.charts.expenses = new Chart(document.getElementById('chart-expenses'), {
+          type: 'doughnut',
+          data: {
+            labels: hasExp ? EXPENSE_CATEGORIES : ['No Expenses'],
+            datasets: [{
+              data: hasExp ? catValues : [1],
+              backgroundColor: hasExp
+                ? ['#ef4444', '#f59e0b', '#3b82f6', '#facc15', '#6366f1', '#64748b']
+                : [gridColor],
+              borderWidth: 0
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '64%',
+            plugins: { legend: { position: 'right', labels: { color: textColor, boxWidth: 11, font: { size: 11 } } } }
+          }
+        });
+      }
+
+      // =========================================================
+      // 7. PAGE 4: TRANSACTION HISTORY
+      // =========================================================
+      function getFilteredTransactions() {
+        const q = (document.getElementById('hist-search').value || '').trim().toLowerCase();
+        const plat = document.getElementById('f-platform').value;
+        const type = document.getElementById('f-type').value;
+        const pay = document.getElementById('f-payment').value;
+        const cat = document.getElementById('f-category').value;
+        const preset = document.getElementById('f-date-preset').value;
+        const today = getTodayISO();
+        const yesterday = shiftDateISO(today, -1);
+
+        return DataService.getTransactions().filter(t => {
+          if (plat !== 'All') {
+            const effPlat = t.type === 'Income' ? t.platform : t.allocation;
+            if (effPlat !== plat) return false;
+          }
+          if (type !== 'All' && t.type !== type) return false;
+          if (pay !== 'All' && t.paymentMethod !== pay) return false;
+          if (cat !== 'All' && t.category !== cat) return false;
+          if (preset === 'today' && t.date !== today) return false;
+          if (preset === 'yesterday' && t.date !== yesterday) return false;
+          if (preset === 'custom') {
+            const s = document.getElementById('f-start-date').value;
+            const e = document.getElementById('f-end-date').value;
+            if (s && t.date < s) return false;
+            if (e && t.date > e) return false;
+          }
+          if (q) {
+            const hay = `${t.platform} ${t.category} ${t.allocation} ${t.notes || ''} ${t.paymentMethod}`.toLowerCase();
+            if (!hay.includes(q)) return false;
+          }
+          return true;
+        });
+      }
+
+      function renderHistory() {
+        const isTx = state.historyTab === 'transactions';
+        document.querySelectorAll('#history-tabs .seg-btn').forEach(b => {
+          b.classList.toggle('active', b.dataset.histTab === state.historyTab);
+        });
+        document.getElementById('hist-tx-panel').classList.toggle('hidden', !isTx);
+        document.getElementById('hist-drv-panel').classList.toggle('hidden', isTx);
+
+        if (isTx) {
+          const list = getFilteredTransactions();
+          const container = document.getElementById('hist-tx-list');
+          if (!list.length) {
+            container.innerHTML = '<div class="card empty-state">No transactions match your filters.</div>';
+            return;
+          }
+          container.innerHTML = list.map(t => {
+            const isInc = t.type === 'Income';
+            const label = isInc ? `${t.platform} Earnings` : t.category;
+            const tagTarget = isInc ? t.platform : t.allocation;
+            const badgeCls = tagTarget === 'Rapido' ? 'badge-rapido' : (tagTarget === 'Porter' ? 'badge-porter' : 'badge-general');
+            return `
+              <div class="tx-item" data-tx-id="${t.id}">
+                <div class="tx-left">
+                  <div class="tx-title">${label}</div>
+                  <div class="tx-sub">
+                    <span class="tag-chip ${badgeCls}">${tagTarget}</span>
+                    <span>${t.paymentMethod}</span>
+                    <span>• ${fmtDateShort(t.date)} ${t.time || ''}</span>
+                  </div>
+                  ${t.notes ? `<div class="tx-note">${t.notes}</div>` : ''}
+                </div>
+                <div class="tx-amount ${isInc ? 'text-green' : 'text-red'}">
+                  ${isInc ? '+' : '-'}${fmtINR(t.amount)}
+                </div>
+              </div>
+            `;
+          }).join('');
+        } else {
+          const records = DataService.getDailyRecords();
+          const container = document.getElementById('hist-drv-list');
+          if (!records.length) {
+            container.innerHTML = '<div class="card empty-state">No driving records yet.</div>';
+            return;
+          }
+          container.innerHTML = records.map(r => {
+            const fuel = r.mileage > 0 ? r.distance / r.mileage : 0;
+            return `
+              <div class="tx-item" data-drv-id="${r.id}">
+                <div class="tx-left">
+                  <div class="tx-title">${fmtDatePretty(r.date)}</div>
+                  <div class="tx-sub">
+                    <span>Mileage: ${r.mileage} km/L</span>
+                    <span>• Est. Fuel: ${fuel.toFixed(2)} L</span>
+                  </div>
+                </div>
+                <div class="tx-amount text-blue">${r.distance.toFixed(1)} km</div>
+              </div>
+            `;
+          }).join('');
+        }
+      }
+
+      // =========================================================
+      // 8. MODALS (DETAIL, EDIT, DELETE CONFIRMATION)
+      // =========================================================
+      function openModal(title, bodyHtml, actions) {
+        document.getElementById('modal-title').textContent = title;
+        document.getElementById('modal-body').innerHTML = bodyHtml;
+        const actEl = document.getElementById('modal-actions');
+        actEl.innerHTML = '';
+        actions.forEach(a => {
+          const btn = document.createElement('button');
+          btn.className = `btn ${a.cls || 'btn-secondary'}`;
+          btn.textContent = a.label;
+          btn.addEventListener('click', a.onClick);
+          actEl.appendChild(btn);
+        });
+        document.getElementById('modal-backdrop').classList.add('open');
+      }
+
+      function closeModal() {
+        document.getElementById('modal-backdrop').classList.remove('open');
+      }
+
+      function openTxModal(id) {
+        const tx = DataService.getTransactions().find(t => t.id === id);
+        if (!tx) return;
+        const html = `
+          <div class="insight-row"><span>Type</span><strong>${tx.type}</strong></div>
+          <div class="insight-row"><span>Amount</span><strong class="${tx.type === 'Income' ? 'text-green' : 'text-red'}">${fmtINR(tx.amount)}</strong></div>
+          <div class="insight-row"><span>Platform / Allocation</span><strong>${tx.type === 'Income' ? tx.platform : tx.allocation}</strong></div>
+          <div class="insight-row"><span>Category</span><strong>${tx.category}</strong></div>
+          <div class="insight-row"><span>Payment Method</span><strong>${tx.paymentMethod}</strong></div>
+          <div class="insight-row"><span>Date & Time</span><strong>${tx.date} ${tx.time || ''}</strong></div>
+          <div class="insight-row"><span>Notes</span><strong>${tx.notes || '—'}</strong></div>
+        `;
+        openModal('Transaction Details', html, [
+          {
+            label: 'Edit',
+            cls: 'btn-secondary',
+            onClick: () => {
+              closeModal();
+              startEditTx(tx);
+            }
+          },
+          {
+            label: 'Delete',
+            cls: 'btn-danger',
+            onClick: () => {
+              openModal(
+                'Confirm Delete',
+                `<p style="font-size:14px; color:var(--text-secondary);">Delete this ${tx.type.toLowerCase()} entry of <strong>${fmtINR(tx.amount)}</strong>?</p>`,
+                [
+                  { label: 'Cancel', cls: 'btn-secondary', onClick: closeModal },
+                  {
+                    label: 'Delete Entry',
+                    cls: 'btn-danger',
+                    onClick: () => {
+                      DataService.deleteTransaction(tx.id);
+                      closeModal();
+                      renderHistory();
+                      renderHome();
+                      showToast('Transaction deleted');
+                    }
+                  }
+                ]
+              );
+            }
+          }
+        ]);
+      }
+
+      function startEditTx(tx) {
+        navigateTo('add');
+        switchAddTab('transaction');
+        document.getElementById('add-page-title').textContent = 'Edit Transaction';
+        document.getElementById('tx-submit-btn').textContent = 'Update Transaction';
+        document.getElementById('tx-cancel-edit-btn').classList.remove('hidden');
+        document.getElementById('tx-edit-id').value = tx.id;
+        document.getElementById('tx-amount').value = tx.amount;
+        document.getElementById('tx-date').value = tx.date;
+        document.getElementById('tx-notes').value = tx.notes || '';
+        state.txType = tx.type;
+        state.txPlatform = tx.platform === 'Porter' ? 'Porter' : 'Rapido';
+        state.txCategory = EXPENSE_CATEGORIES.includes(tx.category) ? tx.category : 'Fuel';
+        state.txAllocation = tx.allocation || 'General / Shared';
+        state.txPayment = tx.paymentMethod || 'UPI';
+        syncAddFormUI();
+      }
+
+      function openDrivingModal(id) {
+        const rec = DataService.getDailyRecords().find(r => r.id === id);
+        if (!rec) return;
+        const fuel = rec.mileage > 0 ? rec.distance / rec.mileage : 0;
+        const html = `
+          <div class="insight-row"><span>Date</span><strong>${fmtDatePretty(rec.date)}</strong></div>
+          <div class="insight-row"><span>Distance Travelled</span><strong>${rec.distance.toFixed(1)} km</strong></div>
+          <div class="insight-row"><span>Average Mileage</span><strong>${rec.mileage} km/L</strong></div>
+          <div class="insight-row"><span>Est. Fuel Consumption</span><strong>${fuel.toFixed(2)} L</strong></div>
+        `;
+        openModal('Driving Record', html, [
+          {
+            label: 'Edit Record',
+            cls: 'btn-secondary',
+            onClick: () => {
+              closeModal();
+              navigateTo('add');
+              switchAddTab('driving');
+              document.getElementById('drv-date').value = rec.date;
+              document.getElementById('drv-distance').value = rec.distance;
+              document.getElementById('drv-mileage').value = rec.mileage;
+              updateDrivingPreview();
+            }
+          },
+          {
+            label: 'Delete',
+            cls: 'btn-danger',
+            onClick: () => {
+              DataService.deleteDailyRecord(rec.id);
+              closeModal();
+              renderHistory();
+              renderHome();
+              showToast('Driving record deleted');
+            }
+          }
+        ]);
+      }
+
+      // =========================================================
+      // 9. PAGE 5: SETTINGS & EXPORTS
+      // =========================================================
+      function renderSettings() {
+        const s = DataService.getSettings();
+        document.getElementById('set-mileage').value = s.defaultMileage;
+        document.getElementById('set-fuel-price').value = s.fuelPrice;
+        document.getElementById('set-last-sync').textContent = s.lastSync || 'Not synced yet';
+        applyTheme(s.theme);
+      }
+
+      function exportTransactionsCSV(list, filenamePrefix = 'roadledger_transactions') {
+        const headers = ['Transaction ID', 'Date', 'Time', 'Type', 'Amount', 'Platform', 'Category', 'Payment Method', 'Expense Allocation', 'Notes'];
+        const rows = list.map(t => [
+          t.id, t.date, t.time || '', t.type, t.amount,
+          t.platform, t.category, t.paymentMethod, t.allocation,
+          `"${(t.notes || '').replace(/"/g, '""')}"`
+        ].join(','));
+        const csv = [headers.join(','), ...rows].join('\n');
+        downloadBlob(csv, `${filenamePrefix}_${getTodayISO()}.csv`, 'text/csv;charset=utf-8;');
+        showToast('CSV exported');
+      }
+
+      function downloadBlob(content, filename, mime) {
+        const blob = new Blob([content], { type: mime });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
+
+      // =========================================================
+      // 10. PAGE 6: DAILY CLOSING REPORT
+      // =========================================================
+      function renderClosingReport() {
+        const dateEl = document.getElementById('closing-date');
+        if (!dateEl.value) dateEl.value = getTodayISO();
+        const targetDate = dateEl.value;
+
+        const txs = DataService.getTransactions().filter(t => t.date === targetDate);
+        const drv = DataService.getDailyRecords().find(r => r.date === targetDate);
+
+        let rap = 0, por = 0, exp = 0;
+        txs.forEach(t => {
+          if (t.type === 'Income') {
+            if (t.platform === 'Rapido') rap += t.amount;
+            if (t.platform === 'Porter') por += t.amount;
+          } else {
+            exp += t.amount;
+          }
+        });
+
+        const totalEarn = rap + por;
+        const net = totalEarn - exp;
+
+        document.getElementById('cl-total-earn').textContent = fmtINR(totalEarn);
+        document.getElementById('cl-rapido').textContent = fmtINR(rap);
+        document.getElementById('cl-porter').textContent = fmtINR(por);
+        document.getElementById('cl-expenses').textContent = fmtINR(exp);
+        const netEl = document.getElementById('cl-net-profit');
+        netEl.textContent = fmtINR(net);
+        netEl.className = net >= 0 ? 'text-green' : 'text-red';
+
+        const dist = drv ? drv.distance : 0;
+        const mil = drv ? drv.mileage : 0;
+        const fuel = mil > 0 ? dist / mil : 0;
+        const epk = dist > 0 ? totalEarn / dist : 0;
+        const ppk = dist > 0 ? net / dist : 0;
+
+        document.getElementById('cl-distance').textContent = `${dist.toFixed(1)} km`;
+        document.getElementById('cl-mileage').textContent = `${mil.toFixed(1)} km/L`;
+        document.getElementById('cl-fuel').textContent = `${fuel.toFixed(2)} L`;
+        document.getElementById('cl-epk').textContent = fmtINR(epk, 2);
+        const ppkEl = document.getElementById('cl-ppk');
+        ppkEl.textContent = fmtINR(ppk, 2);
+        ppkEl.className = ppk >= 0 ? 'text-green' : 'text-red';
+      }
+
+      // =========================================================
+      // 11. EVENT LISTENERS
+      // =========================================================
+      function bindEvents() {
+        // Bottom Nav
+        document.querySelectorAll('.nav-btn[data-nav]').forEach(btn => {
+          btn.addEventListener('click', () => navigateTo(btn.dataset.nav));
+        });
+        document.getElementById('nav-add-btn').addEventListener('click', () => {
+          resetTxForm();
+          navigateTo('add');
+        });
+
+        // Home Quick Actions & Card Taps
+        document.getElementById('home-btn-add').addEventListener('click', () => {
+          resetTxForm();
+          navigateTo('add');
+        });
+        document.getElementById('home-btn-closing').addEventListener('click', () => {
+          document.getElementById('closing-date').value = getTodayISO();
+          navigateTo('closing');
+        });
+        document.getElementById('card-rapido-tap').addEventListener('click', () => {
+          state.historyTab = 'transactions';
+          document.getElementById('f-platform').value = 'Rapido';
+          document.getElementById('f-type').value = 'Income';
+          document.getElementById('f-date-preset').value = 'today';
+          navigateTo('history');
+        });
+        document.getElementById('card-porter-tap').addEventListener('click', () => {
+          state.historyTab = 'transactions';
+          document.getElementById('f-platform').value = 'Porter';
+          document.getElementById('f-type').value = 'Income';
+          document.getElementById('f-date-preset').value = 'today';
+          navigateTo('history');
+        });
+        document.getElementById('card-expenses-tap').addEventListener('click', () => {
+          state.historyTab = 'transactions';
+          document.getElementById('f-platform').value = 'All';
+          document.getElementById('f-type').value = 'Expense';
+          document.getElementById('f-date-preset').value = 'today';
+          navigateTo('history');
+        });
+        document.getElementById('card-driving-tap').addEventListener('click', () => {
+          state.historyTab = 'driving';
+          navigateTo('history');
+        });
+
+        // Add Page Tabs & Form Controls
+        document.querySelectorAll('#add-mode-tabs .seg-btn').forEach(btn => {
+          btn.addEventListener('click', () => switchAddTab(btn.dataset.addTab));
+        });
+        document.getElementById('btn-type-income').addEventListener('click', () => {
+          state.txType = 'Income';
+          syncAddFormUI();
+        });
+        document.getElementById('btn-type-expense').addEventListener('click', () => {
+          state.txType = 'Expense';
+          syncAddFormUI();
+        });
+        document.querySelectorAll('[data-tx-platform]').forEach(p => {
+          p.addEventListener('click', () => {
+            state.txPlatform = p.dataset.txPlatform;
+            syncAddFormUI();
+          });
+        });
+        document.querySelectorAll('[data-tx-category]').forEach(p => {
+          p.addEventListener('click', () => {
+            state.txCategory = p.dataset.txCategory;
+            if (state.txCategory !== 'Rapido Charges' && state.txCategory !== 'Porter Charges') {
+              if (state.txAllocation === 'Rapido' || state.txAllocation === 'Porter') {
+                // Keep user choice or default
+              }
+            }
+            syncAddFormUI();
+          });
+        });
+        document.querySelectorAll('[data-tx-alloc]').forEach(p => {
+          p.addEventListener('click', () => {
+            if (p.disabled) return;
+            state.txAllocation = p.dataset.txAlloc;
+            syncAddFormUI();
+          });
+        });
+        document.querySelectorAll('[data-tx-payment]').forEach(p => {
+          p.addEventListener('click', () => {
+            state.txPayment = p.dataset.txPayment;
+            syncAddFormUI();
+          });
+        });
+
+        document.getElementById('tx-cancel-edit-btn').addEventListener('click', () => {
+          resetTxForm();
+          navigateTo('history');
+        });
+
+        // Submit Transaction (with duplicate submit protection)
+        let isSubmittingTx = false;
+        document.getElementById('tx-form').addEventListener('submit', (e) => {
+          e.preventDefault();
+          if (isSubmittingTx) return;
+          const amount = parseFloat(document.getElementById('tx-amount').value);
+          if (!amount || amount <= 0) {
+            showToast('Enter a valid amount', true);
+            return;
+          }
+          isSubmittingTx = true;
+          const btn = document.getElementById('tx-submit-btn');
+          btn.disabled = true;
+
+          const editId = document.getElementById('tx-edit-id').value;
+          const now = new Date();
+          const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+          const existing = editId ? DataService.getTransactions().find(t => t.id === editId) : null;
+
+          const tx = {
+            id: editId || `tx_${Date.now()}`,
+            date: document.getElementById('tx-date').value || getTodayISO(),
+            time: existing ? existing.time : timeStr,
+            type: state.txType,
+            amount: Number(amount.toFixed(2)),
+            platform: state.txType === 'Income' ? state.txPlatform : state.txAllocation,
+            category: state.txType === 'Income' ? (state.txPlatform === 'Rapido' ? 'Ride Earnings' : 'Delivery Earnings') : state.txCategory,
+            paymentMethod: state.txPayment,
+            allocation: state.txType === 'Income' ? state.txPlatform : state.txAllocation,
+            notes: document.getElementById('tx-notes').value.trim(),
+            createdAt: existing ? existing.createdAt : now.toISOString(),
+            updatedAt: now.toISOString()
+          };
+
+          DataService.saveTransaction(tx);
+          resetTxForm();
+          renderHome();
+          showToast(editId ? 'Transaction updated!' : 'Transaction saved!');
+
+          setTimeout(() => {
+            isSubmittingTx = false;
+            btn.disabled = false;
+          }, 450);
+        });
+
+        // Driving Form Live Preview & Submit
+        document.getElementById('drv-distance').addEventListener('input', updateDrivingPreview);
+        document.getElementById('drv-mileage').addEventListener('input', updateDrivingPreview);
+        document.getElementById('driving-form').addEventListener('submit', (e) => {
+          e.preventDefault();
+          const date = document.getElementById('drv-date').value || getTodayISO();
+          const distance = parseFloat(document.getElementById('drv-distance').value);
+          const mileage = parseFloat(document.getElementById('drv-mileage').value);
+          if (!distance || distance <= 0 || !mileage || mileage <= 0) {
+            showToast('Enter valid distance & mileage', true);
+            return;
+          }
+          const now = new Date().toISOString();
+          const { updated } = DataService.upsertDailyRecord({
+            id: `drv_${Date.now()}`,
+            date,
+            distance: Number(distance.toFixed(2)),
+            mileage: Number(mileage.toFixed(2)),
+            estimatedFuel: Number((distance / mileage).toFixed(2)),
+            createdAt: now,
+            updatedAt: now
+          });
+          document.getElementById('drv-distance').value = '';
+          document.getElementById('drv-mileage').value = DataService.getSettings().defaultMileage;
+          updateDrivingPreview();
+          renderHome();
+          showToast(updated ? 'Existing driving record updated!' : 'Driving record saved!');
+        });
+
+        // Stats Filters
+        document.querySelectorAll('#stats-range-pills .pill').forEach(p => {
+          p.addEventListener('click', () => {
+            state.statsRange = p.dataset.range;
+            document.querySelectorAll('#stats-range-pills .pill').forEach(x => x.classList.remove('active'));
+            p.classList.add('active');
+            document.getElementById('stats-custom-dates').classList.toggle('hidden', state.statsRange !== 'custom');
+            renderStats();
+          });
+        });
+        document.getElementById('stats-start').addEventListener('change', renderStats);
+        document.getElementById('stats-end').addEventListener('change', renderStats);
+
+        // History Tabs & Filters
+        document.querySelectorAll('#history-tabs .seg-btn').forEach(b => {
+          b.addEventListener('click', () => {
+            state.historyTab = b.dataset.histTab;
+            renderHistory();
+          });
+        });
+        ['hist-search', 'f-platform', 'f-type', 'f-payment', 'f-category', 'f-start-date', 'f-end-date'].forEach(id => {
+          document.getElementById(id).addEventListener('input', renderHistory);
+          document.getElementById(id).addEventListener('change', renderHistory);
+        });
+        document.getElementById('f-date-preset').addEventListener('change', (e) => {
+          document.getElementById('f-custom-range').classList.toggle('hidden', e.target.value !== 'custom');
+          renderHistory();
+        });
+        document.getElementById('f-reset-btn').addEventListener('click', () => {
+          document.getElementById('hist-search').value = '';
+          document.getElementById('f-platform').value = 'All';
+          document.getElementById('f-type').value = 'All';
+          document.getElementById('f-payment').value = 'All';
+          document.getElementById('f-category').value = 'All';
+          document.getElementById('f-date-preset').value = 'all';
+          document.getElementById('f-custom-range').classList.add('hidden');
+          renderHistory();
+        });
+
+        document.getElementById('hist-tx-list').addEventListener('click', (e) => {
+          const item = e.target.closest('[data-tx-id]');
+          if (item) openTxModal(item.dataset.txId);
+        });
+        document.getElementById('hist-drv-list').addEventListener('click', (e) => {
+          const item = e.target.closest('[data-drv-id]');
+          if (item) openDrivingModal(item.dataset.drvId);
+        });
+        document.getElementById('hist-export-csv').addEventListener('click', () => {
+          exportTransactionsCSV(getFilteredTransactions(), 'roadledger_filtered');
+        });
+
+        // Settings
+        document.getElementById('theme-dark-btn').addEventListener('click', () => {
+          DataService.saveSettings({ theme: 'dark' });
+          applyTheme('dark');
+        });
+        document.getElementById('theme-light-btn').addEventListener('click', () => {
+          DataService.saveSettings({ theme: 'light' });
+          applyTheme('light');
+        });
+        document.getElementById('settings-driving-form').addEventListener('submit', (e) => {
+          e.preventDefault();
+          const mil = parseFloat(document.getElementById('set-mileage').value);
+          const price = parseFloat(document.getElementById('set-fuel-price').value);
+          if (!mil || mil <= 0 || !price || price <= 0) {
+            showToast('Enter valid mileage & fuel price', true);
+            return;
+          }
+          DataService.saveSettings({ defaultMileage: mil, fuelPrice: price });
+          showToast('Driving settings saved!');
+        });
+        document.getElementById('set-export-csv').addEventListener('click', () => {
+          exportTransactionsCSV(DataService.getTransactions(), 'roadledger_all');
+        });
+        document.getElementById('set-backup-json').addEventListener('click', () => {
+          const backup = {
+            exportedAt: new Date().toISOString(),
+            transactions: DataService.getTransactions(),
+            dailyRecords: DataService.getDailyRecords(),
+            settings: DataService.getSettings()
+          };
+          downloadBlob(JSON.stringify(backup, null, 2), `roadledger_backup_${getTodayISO()}.json`, 'application/json');
+          showToast('JSON backup downloaded');
+        });
+        document.getElementById('set-reset-demo').addEventListener('click', () => {
+          openModal(
+            'Reset Demo Data?',
+            '<p style="font-size:14px; color:var(--text-secondary);">This replaces your current local entries with fresh sample Rapido & Porter data.</p>',
+            [
+              { label: 'Cancel', cls: 'btn-secondary', onClick: closeModal },
+              {
+                label: 'Reset Data',
+                cls: 'btn-danger',
+                onClick: () => {
+                  DataService.resetDemoData();
+                  closeModal();
+                  renderHome();
+                  showToast('Demo data restored');
+                }
+              }
+            ]
+          );
+        });
+
+        // Daily Closing Report
+        document.getElementById('closing-date').addEventListener('change', renderClosingReport);
+        document.getElementById('closing-done-btn').addEventListener('click', () => navigateTo('home'));
+
+        // Modal Close
+        document.getElementById('modal-close-btn').addEventListener('click', closeModal);
+        document.getElementById('modal-backdrop').addEventListener('click', (e) => {
+          if (e.target.id === 'modal-backdrop') closeModal();
+        });
+      }
+
+      // =========================================================
+      // 11B. GOOGLE SHEETS CLOUD SYNC & PWA REGISTRATION
+      // =========================================================
+      const CloudSync = {
+        async pushAll(manual = false) {
+          const settings = DataService.getSettings();
+          const url = (settings.gasUrl || '').trim();
+          if (!url) {
+            if (manual) showToast('Enter your Google Apps Script URL first', true);
+            return;
+          }
+          try {
+            document.getElementById('set-sync-status').textContent = 'Syncing...';
+            const res = await fetch(url, {
+              method: 'POST',
+              headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+              body: JSON.stringify({
+                action: 'syncAll',
+                transactions: DataService.getTransactions(),
+                dailyRecords: DataService.getDailyRecords(),
+                settings
+              })
+            });
+            const data = await res.json();
+            if (!data.ok) throw new Error(data.error || 'Sync failed');
+            const nowStr = new Date().toLocaleString('en-IN');
+            DataService.saveSettings({ lastSync: nowStr, pendingSync: false });
+            renderSettings();
+            if (manual) showToast('Synced to Google Sheets!');
+          } catch (err) {
+            DataService.saveSettings({ pendingSync: true });
+            renderSettings();
+            if (manual) showToast('Offline or sync error — saved locally', true);
+          }
+        },
+        async pullAll() {
+          const url = (DataService.getSettings().gasUrl || '').trim();
+          if (!url) {
+            showToast('Enter your Google Apps Script URL first', true);
+            return;
+          }
+          try {
+            document.getElementById('set-sync-status').textContent = 'Fetching...';
+            const res = await fetch(url);
+            const data = await res.json();
+            if (!data.ok) throw new Error(data.error || 'Fetch failed');
+            if (Array.isArray(data.transactions)) safeSet(STORAGE_KEYS.TRANSACTIONS, data.transactions);
+            if (Array.isArray(data.dailyRecords)) safeSet(STORAGE_KEYS.DRIVING, data.dailyRecords);
+            if (data.settings) DataService.saveSettings({ ...data.settings, gasUrl: url, lastSync: new Date().toLocaleString('en-IN'), pendingSync: false });
+            renderHome();
+            renderSettings();
+            showToast('Pulled data from Google Sheets!');
+          } catch (err) {
+            showToast('Could not reach Google Sheets', true);
+          }
+        }
+      };
+
+      const _origRenderSettings = renderSettings;
+      renderSettings = function () {
+        _origRenderSettings();
+        const s = DataService.getSettings();
+        const urlEl = document.getElementById('set-gas-url');
+        if (urlEl) urlEl.value = s.gasUrl || '';
+        const gsEl = document.getElementById('set-gs-status');
+        const syncEl = document.getElementById('set-sync-status');
+        if (gsEl) {
+          gsEl.textContent = s.gasUrl ? 'Connected' : 'Not Connected (Local)';
+          gsEl.className = s.gasUrl ? 'text-green' : 'text-yellow';
+        }
+        if (syncEl) {
+          syncEl.textContent = s.pendingSync ? 'Pending Retry (Offline)' : (s.gasUrl ? 'Ready' : 'Local Storage Active');
+        }
+      };
+
+      document.getElementById('set-sync-now').addEventListener('click', () => {
+        const url = document.getElementById('set-gas-url').value.trim();
+        DataService.saveSettings({ gasUrl: url });
+        CloudSync.pushAll(true);
+      });
+      document.getElementById('set-pull-sheets').addEventListener('click', () => {
+        const url = document.getElementById('set-gas-url').value.trim();
+        DataService.saveSettings({ gasUrl: url });
+        CloudSync.pullAll();
+      });
+
+      window.addEventListener('online', () => {
+        const s = DataService.getSettings();
+        if (s.gasUrl && s.pendingSync) CloudSync.pushAll(false);
+      });
+
+      if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+        navigator.serviceWorker.register('./sw.js').catch(() => {});
+      }
+
+      // =========================================================
+      // 12. BOOTSTRAP
+      // =========================================================
+      DataService.init();
+      applyTheme(DataService.getSettings().theme || 'dark');
+      bindEvents();
+      renderHome();
+    })();
+  </script>
+</body>
+</html>
